@@ -14,6 +14,7 @@
 #include <errlog.h>
 #include <iocsh.h>
 #include <epicsExport.h>
+#include <string>
 
 #include "caPutJsonLogTask.h"
 
@@ -76,6 +77,26 @@ extern "C"
         caPutJsonLogShow(args[0].ival);
     }
 
+    /* Metadata */
+    int caPutJsonLogAddMetadata(char *property, char *value){
+        CaPutJsonLogTask *logger = CaPutJsonLogTask::getInstance();
+        std::string property_str(property);
+        std::string value_str(value);
+        if (logger != NULL) return logger->addMetadata(property_str, value_str);
+        else return -1;
+    }
+    static const iocshArg caPutJsonLogAddMetadataArg0 = {"property", iocshArgString};
+    static const iocshArg caPutJsonLogAddMetadataArg1 = {"value", iocshArgString};
+    static const iocshArg *const caPutJsonLogAddMetadataArgs[] =
+    {
+        &caPutJsonLogAddMetadataArg0,
+        &caPutJsonLogAddMetadataArg1
+    };
+    static const iocshFuncDef caPutJsonLogAddMetadataDef = {"caPutJsonLogAddMetadata", 2, caPutJsonLogAddMetadataArgs};
+    static void caPutJsonLogAddMetadataCall(const iocshArgBuf *args)
+    {
+        caPutJsonLogAddMetadata(args[0].sval, args[1].sval);
+    }
 
     /* Register IOCsh commands */
     static void caPutJsonLogRegister(void)
@@ -87,6 +108,7 @@ extern "C"
         iocshRegister(&caPutjsonLogInitDef,caPutJsonLogInitCall);
         iocshRegister(&caPutJsonLogReconfDef,caPutJsonLogReconfCall);
         iocshRegister(&caPutJsonLogShowDef,caPutJsonLogShowCall);
+        iocshRegister(&caPutJsonLogAddMetadataDef,caPutJsonLogAddMetadataCall);
     }
     epicsExportRegistrar(caPutJsonLogRegister);
 
